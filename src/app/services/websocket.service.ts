@@ -12,7 +12,7 @@ export class WebsocketService {
   public usuario: Usuario = null;
 
   constructor(private webSocket: Socket, private router: Router) { 
-    this.cargarStorage();
+    // this.cargarStorage();
     this.verificarConexion();
   }
 
@@ -21,7 +21,7 @@ export class WebsocketService {
     this.webSocket.on('connect', () => {
       console.log('Conectado al Servidor');
       this.estadoConexion = true;
-      this.guardarStorage();
+      // this.guardarStorage();
     });
 
     this.webSocket.on('disconnect', () => {
