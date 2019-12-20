@@ -167,9 +167,7 @@ export class RutaComponent implements OnInit, AfterViewInit {
         nombre: ubicacion.nombre,
         id: nuevoMarcador.get('id')
       };
-
-      const ubicacionMarcador = new google.maps.LatLng( marcadorTemporal.latitud, marcadorTemporal.longitud );
-      this.mapa.setCenter( ubicacionMarcador );
+      
       // Emitir evento socket borrar un marcador
       this.websocketService.emitirSocket('emitir-marcador-mover', marcadorTemporal);
 

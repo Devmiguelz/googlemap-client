@@ -26,33 +26,25 @@ export class MapaService {
   cargarRutasMarcador(id: string) {
     this.url = environment.URL_SERVICIOS + '/rutas/marcador';
 
-    const body = { id };
-
     const httpOptions = {
       headers: new HttpHeaders( {
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Accept': 'application/json'
           }),
-      body: body
     };
 
-    return this.http.post( this.url, httpOptions );
+    return this.http.get(`${this.url}/${id}`, httpOptions);
   }
 
   limpiarRutaMarcador( id: string ) {
     this.url = environment.URL_SERVICIOS + '/eliminar/rutamarcador';
 
-    const body = { id };
-
     const httpOptions = {
       headers: new HttpHeaders( {
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Accept': 'application/json'
           }),
-      body: body
     };
 
-    return this.http.delete( this.url, httpOptions);
+    return this.http.delete(`${this.url}/${id}`, httpOptions);
   }
 
   limpiarRutas() {

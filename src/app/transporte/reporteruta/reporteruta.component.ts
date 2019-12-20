@@ -92,6 +92,7 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
   }
 
   limpiarRutaMapa() {
+    
     this.mapaService.limpiarRutas().subscribe( ( resp: any ) => {
       if( resp.ok == true){
         console.log('Rutas Elminadas');
