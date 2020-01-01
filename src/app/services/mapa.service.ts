@@ -14,17 +14,17 @@ export class MapaService {
   ) { }
 
   cargarMarcadores() {
-    this.url = environment.URL_SERVICIOS + '/marcadores';
+    this.url = environment.URL_SERVICIOS + '/ruta/marcadores';
     return this.http.get( this.url );
   }
 
   cargarRutas() {
-    this.url = environment.URL_SERVICIOS + '/rutas';
+    this.url = environment.URL_SERVICIOS + '/ruta/rutas';
     return this.http.get( this.url );
   }
 
   cargarRutasMarcador(id: string) {
-    this.url = environment.URL_SERVICIOS + '/rutas/marcador';
+    this.url = environment.URL_SERVICIOS + '/ruta/marcador';
 
     const httpOptions = {
       headers: new HttpHeaders( {
@@ -36,7 +36,7 @@ export class MapaService {
   }
 
   limpiarRutaMarcador( id: string ) {
-    this.url = environment.URL_SERVICIOS + '/eliminar/rutamarcador';
+    this.url = environment.URL_SERVICIOS + '/ruta/eliminarmarcador';
 
     const httpOptions = {
       headers: new HttpHeaders( {
@@ -48,7 +48,7 @@ export class MapaService {
   }
 
   limpiarRutas() {
-    this.url = environment.URL_SERVICIOS + '/eliminar/rutas';
+    this.url = environment.URL_SERVICIOS + '/ruta/eliminarruta';
     return this.http.delete( this.url );
   }
 
