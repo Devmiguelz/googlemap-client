@@ -20,8 +20,11 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
   public dataRutas: Array<Select2OptionData>;  
   public options: Options;
   public arrayRutas: string[];
+  
+  dataRutasTemp: any[] = [];
+  dataRutasSend: any[] = [];
 
-  listaAnios: any[] = null;
+  listaAnios: any[] = [];
   codAnioSel: string = '0';
 
   mapaReporte: google.maps.Map;
@@ -42,7 +45,7 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
     this.dataRutas = [];
 
     this.options = {
-      width: '300',
+      width: '500',
       multiple: true,
       tags: true
     };
@@ -68,21 +71,14 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
     if( this.codAnioSel !== '0' ) {
       this._mapaService.cargarRutasxAnio( this.codAnioSel ).subscribe( ( data: any ) => {
         if ( data.ok = true ) {
-          console.log(data.resp);
-          let dataRutasTemp: any[];
+
+          this.dataRutasTemp = [];
 
           data.resp.forEach( ( ruta: any ) => {
-            
+            this.dataRutasTemp.push({ id: ruta.cod, text: ruta.nroruta});
           });
 
-          for( const i in data.resp) {
-            console.log(data.resp[i].cod);
-            dataRutasTemp.push({ id: data.resp[i].cod, text: data.resp[i].nroruta});
-          }
-
-          console.log(dataRutasTemp);
-          this.dataRutas = dataRutasTemp;
-          console.log(this.dataRutas);
+          this.dataRutas = this.dataRutasTemp;
 
         }
       });
@@ -90,7 +86,9 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
   }
 
   cargarRutas(){
-
+    for( const index in this.arrayRutas ){
+      this.dataRutasSend.push({ codruta: this.arrayRutas[index] });
+    }
   }
 
   escucharEventosRuta() {
