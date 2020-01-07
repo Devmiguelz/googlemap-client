@@ -1,5 +1,30 @@
 <div class="card">
     <div class="card-body">
+      <div class="row">
+        <div class="col-md-3">
+          <label for="selectAnio">Año</label>
+          <select name="selectAnio" id="selectAnio" 
+            class="form-control" [(ngModel)]="codAnioSel" (ngModelChange)="changeAnioRuta()" >
+            <option value="0" selected >Seleccione</option>
+            <option *ngFor="let anio of listaAnios"  value="{{ anio.cod }}">{{ anio.anio }}</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="selectRuta">Rutas</label>
+          <ng-select2 
+            [data]="dataRutas"
+            [options]="options"
+            [width]="600"
+            [(ngModel)]="arrayRutas">
+          </ng-select2>
+          <br/>
+          <br/> Selected values: {{ arrayRutas }}
+        </div>
+        <div class="col-md-3">
+          <button (click)="cargarRutas()" class="btn btn-success margin-top" >Cargar Rutas</button>
+        </div>
+      </div>   
+
       <button  (click)="limpiarRutaMapa()" class="btn btn-danger float-right" >Eliminar Rutas</button>
       <h1 class="card-title">Reporte de Rutas</h1>
         <div #reporteRuta id="reporteRuta">

@@ -4,6 +4,9 @@ import { MapaService } from '../../services/mapa.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { PuntoUbicacion } from '../../model/punto';
 
+import { Select2OptionData } from 'ng-select2';
+import { Options } from 'select2';
+
 @Component({
   selector: 'app-reporteruta',
   templateUrl: './reporteruta.component.html',
@@ -14,6 +17,13 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
   // ViewChild se usa para obtener un elemento de DOM
   @ViewChild('reporteRuta', { static: false }) elementoMapa: ElementRef;
 
+  public dataRutas: Array<Select2OptionData>;  
+  public options: Options;
+  public arrayRutas: string[];
+
+  listaAnios: any[] = null;
+  codAnioSel: string = '0';
+
   mapaReporte: google.maps.Map;
   ubicaciones: Ubicacion[] = [];
   listaDePunto: PuntoUbicacion[] = [];
@@ -21,11 +31,23 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
   rutaPolyline: google.maps.Polyline;
 
   constructor(
-    private mapaService: MapaService,
-    private websocketService: WebsocketService
+    private _mapaService: MapaService,
+    private _websocketService: WebsocketService
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() { 
+
+    this.cargarAnios();
+
+    this.dataRutas = [];
+
+    this.options = {
+      width: '300',
+      multiple: true,
+      tags: true
+    };
+
+  }
 
   ngAfterViewInit() {
     this.cargarMapaReporte();
@@ -34,9 +56,46 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
     this.pintarRuta();
   }
 
+  cargarAnios() {
+    this._mapaService.cargarAnios().subscribe( ( data: any ) => {
+      if ( data.ok = true ){
+        this.listaAnios = data.resp;
+      }
+    });
+  }
+
+  changeAnioRuta(){
+    if( this.codAnioSel !== '0' ) {
+      this._mapaService.cargarRutasxAnio( this.codAnioSel ).subscribe( ( data: any ) => {
+        if ( data.ok = true ) {
+          console.log(data.resp);
+          let dataRutasTemp: any[];
+
+          data.resp.forEach( ( ruta: any ) => {
+            
+          });
+
+          for( const i in data.resp) {
+            console.log(data.resp[i].cod);
+            dataRutasTemp.push({ id: data.resp[i].cod, text: data.resp[i].nroruta});
+          }
+
+          console.log(dataRutasTemp);
+          this.dataRutas = dataRutasTemp;
+          console.log(this.dataRutas);
+
+        }
+      });
+    }
+  }
+
+  cargarRutas(){
+
+  }
+
   escucharEventosRuta() {
     // escuchar-ruta-reporte
-    this.websocketService.escucharSocket('escuchar-ruta-repote')
+    this._websocketService.escucharSocket('escuchar-ruta-repote')
       .subscribe( ( puntoUbicacion: Ubicacion ) => {
 
         if(this.listaDePunto.length == 0){
@@ -53,7 +112,7 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
   }
 
   cargarRutaGuardada() {
-    this.mapaService.cargarRutas().subscribe( ( listaUbicacion: Ubicacion[] ) => {
+    this._mapaService.cargarRutas().subscribe( ( listaUbicacion: Ubicacion[] ) => {
 
       const size = listaUbicacion.length;
 
@@ -93,7 +152,7 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
 
   limpiarRutaMapa() {
     
-    this.mapaService.limpiarRutas().subscribe( ( resp: any ) => {
+    this._mapaService.limpiarRutas().subscribe( ( resp: any ) => {
       if( resp.ok == true){
         console.log('Rutas Elminadas');
         this.rutaPolyline.setMap( null );

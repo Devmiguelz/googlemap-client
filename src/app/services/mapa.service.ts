@@ -52,4 +52,14 @@ export class MapaService {
     return this.http.delete( this.url );
   }
 
+  cargarAnios() {
+    this.url = environment.URL_SERVICIOS + '/anio/cargaranios';
+    return this.http.get( this.url ); 
+  }
+
+  cargarRutasxAnio( codanio : string ) {
+    this.url = environment.URL_SERVICIOS + '/ruta/rutasxanio';
+    return this.http.get( `${this.url}/${codanio}` );
+  }
+
 }
