@@ -12,7 +12,7 @@ export class WebsocketService {
   public usuario: Usuario = null;
 
   constructor(private webSocket: Socket, private router: Router) { 
-    // this.cargarStorage();
+    this.cargarStorage();
     this.verificarConexion();
   }
 
@@ -38,9 +38,9 @@ export class WebsocketService {
     return this.webSocket.fromEvent(evento);
   }
 
-  loginSocketUsuario( nombre: string ,codsala: number) {
+  loginSocketUsuario( nombre: string ,codruta: number) {
     return new Promise( (resolve, reject) => {
-      this.emitirSocket('configurar-usuario', { nombre, codsala }, (resp: Usuario) => {
+      this.emitirSocket('configurar-usuario', { nombre, codruta }, (resp: Usuario) => {
         this.usuario = resp;
         this.guardarStorage();
         resolve();
@@ -53,7 +53,7 @@ export class WebsocketService {
     localStorage.removeItem('usuario');
     const payload ={
       nombre: 'sin-nombre',
-      codsala: 0
+      codruta: 0
     }
     this.emitirSocket('configurar-usuario', payload, () => {} );
     this.router.navigateByUrl('');
@@ -72,7 +72,7 @@ export class WebsocketService {
   cargarStorage(){
     if( localStorage.getItem('usuario') ){
       this.usuario = JSON.parse( localStorage.getItem('usuario') );
-      this.loginSocketUsuario( this.usuario.nombre, this.usuario.codsala );
+      this.loginSocketUsuario( this.usuario.nombre, this.usuario.codruta );
     }
   }
 }

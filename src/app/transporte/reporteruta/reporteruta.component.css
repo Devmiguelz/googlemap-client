@@ -5,3 +5,50 @@
 .margin-top{
     margin-top: 30px;
 }
+.divMapa{
+    width: 100%;
+    height: 276px;
+    background-color: #f1f0f0;
+    border-radius: 5px;
+}
+.tabla-info tr td, .tabla-info tr th{
+    margin: 0;
+    text-align: left;
+    padding: 2px;
+}
+.tabla-info{
+    font-size: 14px;
+}
+.tabla-info tr th{
+    width: 100px;
+    background-color: #33a3d8;
+    color: white;
+}
+.tabla-estudiante tr th{
+    width: 100px;
+    background-color: #33a3d8;
+    color: white;
+    font-size: 13px;
+}
+.tabla-estudiante tr td{
+    font-size: 12px;
+}
+.tabla-estudiante tr td, .tabla-estudiante tr th{
+    margin: 0;
+    text-align: left;
+    padding: 2px;
+}
+.div-listado{
+    overflow-y: auto;
+    height: 300px;
+}
+.size-font{
+    font-size: 13px;
+}
+.img-estudiante{
+    width: 70px;
+    max-height: 70px;
+}
+.img-estado{
+    width: 35px;
+}

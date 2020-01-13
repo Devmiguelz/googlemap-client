@@ -3,13 +3,13 @@ export class Usuario {
 
     public id: string;
     public nombre: string;
-    public codsala: number;
+    public codruta: number;
 
-    constructor( nombre: string , codsala: number, id?: string ) {
+    constructor( nombre: string , codruta: number, id?: string ) {
 
         this.id = id;
         this.nombre = nombre;
-        this.codsala   = codsala;
+        this.codruta = codruta;
 
     }
 

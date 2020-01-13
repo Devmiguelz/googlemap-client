@@ -1,34 +1,158 @@
+<button class="btn btn-primary m-2" [routerLink]="['/transporte/ruta']" routerLinkActive="router-link-active"  >Rutas</button>
+<button class="btn btn-success m-2" [routerLink]="['/transporte/reporteruta']" routerLinkActive="router-link-active"  >Reporte Rutas</button>
+
 <div class="card">
     <div class="card-body">
       <div class="row">
-        <div class="col-md-3">
-          <label for="selectAnio">Año</label>
-          <select name="selectAnio" id="selectAnio" 
-            class="form-control" [(ngModel)]="codAnioSel" (ngModelChange)="changeAnioRuta()" >
-            <option value="0" selected >Seleccione</option>
-            <option *ngFor="let anio of listaAnios"  value="{{ anio.cod }}">{{ anio.anio }}</option>
-          </select>
+        <div class="col-md-6">
+          <h5>Filtrar Flujos</h5>
+          <hr>
+          <form  [formGroup]="formFiltro" (ngSubmit)="filtrarFlujoRuta()" >
+            <div class="row">
+              <div class="col-md-3">
+                <input type="text" class="input-text" class="form-control"
+                  #datepickerYMD="bsDatepicker"
+                  bsDatepicker
+                  formControlName="fecha" name="fecha"
+                  [bsConfig]="{ dateInputFormat: 'DD-MM-YYYY', containerClass: 'theme-blue' }">
+              </div>
+              <div class="col-md-6">
+                <div class="pl-4 custom-radio form-check-inline mt-2">
+                  <input class="custom-control-input" type="radio" formControlName="flujo" name="flujo" id="rdEntrada" value="i">
+                  <label class="custom-control-label" for="rdEntrada"><strong>Entrada</strong></label>
+                </div>
+                <div class="pl-4 custom-radio form-check-inline mt-2">
+                  <input class="custom-control-input" type="radio" formControlName="flujo" name="flujo" id="rdSalida" value="o">
+                  <label class="custom-control-label" for="rdSalida"><strong>Salida</strong></label>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <button type="submit" [disabled]="formFiltro.invalid" class="btn btn-secondary" >Filtrar</button>    
+              </div>
+            </div>
+          </form>
         </div>
-        <div class="col-md-5">
-          <label for="selectRuta">Rutas</label>
-          <ng-select2 
-            [data]="dataRutas"
-            [options]="options"
-            [width]="600"
-            [(ngModel)]="arrayRutas">
-          </ng-select2>
-          <br/>
-          <br/> Selected values: {{ arrayRutas }}
+        <div class="col-md-6">
+          <h5>Cargar Rutas</h5>
+          <hr>
+          <div class="row form-inline">
+            <div class="col-md-2">
+              <label for="selectRuta"><strong>Buscar Ruta(s)</strong></label>
+            </div>
+            <div class="col-md-10">
+              <ng-select2 
+                id="selectRuta"
+                [data]="dataRutas" [options]="options"
+                [width]="400" [(ngModel)]="arrayRutas" (ngModelChange)="cargarRutas()" >
+              </ng-select2>
+            </div>
+          </div>
         </div>
-        <div class="col-md-3">
-          <button (click)="cargarRutas()" class="btn btn-success margin-top" >Cargar Rutas</button>
-        </div>
-      </div>   
-
-      <button  (click)="limpiarRutaMapa()" class="btn btn-danger float-right" >Eliminar Rutas</button>
-      <h1 class="card-title">Reporte de Rutas</h1>
-        <div #reporteRuta id="reporteRuta">
-
-        </div>
+      </div>    
     </div>
-</div>
+  </div>
+  
+  <div class="mx-auto mt-1">        
+    <div *ngFor="let ruta of listaRutas" class="row justify-content-center divRuta" id="div-{{ ruta.codruta }}"  >
+      <div class="card mb-3 col-md-11">
+        <div class="row card-body p-1" >
+          <div class="col-md-3">
+            <div *ngFor="let alert of ruta.alerts">
+              <alert [type]="alert.type" [dismissible]="true" (onClosed)="onClosed(alert)">{{ alert.msg }}</alert>
+            </div>
+            <div class="text-center">
+              <label class="m-0 size-font"><strong>Ver Seguimiento</strong></label><br>
+              <ui-switch defaultBgColor="#bc4c42" [(ngModel)]="ruta.seguimiento" (change)="cargarMapaRuta($event, ruta)" size="small" ></ui-switch>
+              <hr>
+              <table class="tabla-info table">
+                <tr>
+                  <th>Ruta</th>
+                <td>{{ ruta.nroruta }}</td>
+                </tr>
+                <tr>
+                  <th>Vehiculo</th>
+                <td>{{ ruta.matricula }}/{{ ruta.tipovehiculo }}</td>
+                </tr>
+                <tr>
+                  <th>Conductor</th>
+                  <td>{{ ruta.conductor }}</td>
+                </tr>
+                <tr>
+                  <th>Auxiliar</th>
+                  <td>{{ ruta.auxiliar }}</td>
+                </tr>
+                <tr>
+                  <th>Flujo</th>
+                  <td>
+                    <span *ngIf="ruta.flujo == 'o'" class="badge badge-danger">Salida</span>
+                    <span *ngIf="ruta.flujo == 'i'" class="badge badge-success">Entrada</span>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Inicio</th>
+                  <td></td>
+                </tr>
+                <tr>
+                  <th>Fin</th>
+                  <td></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="row">
+              <div class="col-md-9">
+                <small><em>Progreso y seguimiento</em></small>
+                <div class="mb-1">
+                  <progressbar [max]="100" [value]="ruta.progress">
+                    <span class="text-nowrap">{{ ruta.progress }}%</span>
+                  </progressbar>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <small><em>Pasajeros</em></small><br>
+                <small><em>0 / {{ ruta.countEstu }}</em></small>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="divMapa" id="mapa-{{ ruta.codruta }}" ></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="mb-0 size-font" ><strong>Listado de Estudiantes</strong></label>
+            <div class="div-listado">
+              <table class="tabla-estudiante mb-0 table table-bordered">
+                <thead>
+                  <tr>
+                    <th scope="col">Imagen</th>
+                    <th scope="col">Usuario</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Hora</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let estudiante of ruta.estudiantes" >
+                    <td class="text-center" > 
+                      <!-- <img *ngIf="estudiante.path != null" class="img-estudiante" src="{{ estudiante.path | slice:2:estudiante.path.length }}" alt="imagen-estudiante"> -->
+                      <img *ngIf="estudiante.path == null" class="img-estudiante" src="assets/Images/img-default.png" alt="img-default">
+                    </td>
+                    <td>                          
+                      {{ estudiante.nombreestudiante }}
+                    </td>
+                    <td class="text-center align-middle" >
+                      <img *ngIf="estudiante.asistio === null" class="img-estado" src="assets/Images/pendiente.png" alt="img-default">                          
+                      <img *ngIf="estudiante.asistio === '1'" class="img-estado" src="assets/Images/enruta.png" alt="img-default">                          
+                      <img *ngIf="estudiante.asistio !== null && estudiante.asistio !== '1'" class="img-estado" src="assets/Images/noasistio.png" alt="img-default">                          
+                    </td>
+                    <td><p *ngIf="estudiante.createdday != null" ></p> {{ estudiante.createdday }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

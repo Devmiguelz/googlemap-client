@@ -1,9 +1,53 @@
-  <div class="card">
-    <div class="card-body">
-        <h1 class="card-title">Rutas</h1>
+<button class="btn btn-primary m-2" [routerLink]="['/transporte/ruta']" routerLinkActive="router-link-active"  >Rutas</button>
+<button class="btn btn-success m-2" [routerLink]="['/transporte/reporteruta']" routerLinkActive="router-link-active"  >Reporte Rutas</button>
 
-        <div #mapa id="mapa">
-
-        </div>
-    </div>
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <h5>Filtrar Flujos</h5>
+        <hr>
+        <form  [formGroup]="formFiltro" (ngSubmit)="filtrarFlujoRuta()" >
+          <div class="row">
+            <div class="col-md-3">
+              <input type="text" class="input-text" class="form-control"
+                #datepickerYMD="bsDatepicker"
+                bsDatepicker
+                formControlName="fecha" name="fecha"
+                [bsConfig]="{ dateInputFormat: 'DD-MM-YYYY', containerClass: 'theme-blue' }">
+            </div>
+            <div class="col-md-6">
+              <div class="pl-4 custom-radio form-check-inline mt-2">
+                <input class="custom-control-input" type="radio" formControlName="flujo" name="flujo" id="rdEntrada" value="i">
+                <label class="custom-control-label" for="rdEntrada"><strong>Entrada</strong></label>
+              </div>
+              <div class="pl-4 custom-radio form-check-inline mt-2">
+                <input class="custom-control-input" type="radio" formControlName="flujo" name="flujo" id="rdSalida" value="o">
+                <label class="custom-control-label" for="rdSalida"><strong>Salida</strong></label>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" [disabled]="formFiltro.invalid" class="btn btn-secondary" >Filtrar</button>    
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-6">
+        <button (click)="cerrarAllRutas()" class="btn btn-danger float-right" >Cerrar Todas las Rutas</button>
+      </div>
+    </div>    
+  </div>
 </div>
+ 
+<div *ngIf="listaRutas.length > 0" class="card mb-3 col-md-12">
+  <div class="row card-body p-1" >
+    <div *ngFor="let ruta of listaRutas" class="col-md-4">
+        <label>{{ ruta.nroruta }}</label>
+        <button id="btn-estado-{{ ruta.codruta }}" class="btn btn-success p-0 float-right" 
+          (click)="cambiarEstado(ruta)" >Activar
+        </button>
+        <div class="divMapa" id="ruta-mapa-{{ ruta.codruta }}" ></div>
+    </div>
+  </div>
+</div>
+

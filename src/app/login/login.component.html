@@ -1,0 +1,19 @@
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <h1 class="display-3 text-center" >LOGIN</h1>
+            <hr>
+            <form [formGroup]="formLogin" (ngSubmit)="validarLogin()">
+                <label for="txtNombre">Nombre de Usuario</label>
+                <input type="text" id="txtNombre" formControlName="nombre" 
+                name="nombre" 
+                class="form-control" placeholder="Nombre de Usuario"
+                autofocus autocomplete="off">
+                <button type="submit" [disabled]="formLogin.invalid" 
+                    class="btn btn-primary btn-block mt-2" >
+                    LOGIN
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
