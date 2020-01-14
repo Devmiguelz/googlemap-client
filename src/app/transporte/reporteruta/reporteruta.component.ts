@@ -1,8 +1,7 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Ubicacion } from '../../model/ubicacion';
 import { MapaService } from '../../services/mapa.service';
 import { WebsocketService } from '../../services/websocket.service';
-import { PuntoUbicacion } from '../../model/punto';
 
 import { Select2OptionData } from 'ng-select2';
 import { Options } from 'select2';
@@ -27,7 +26,7 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
   fechaInicial = new Date();
   filtroFlujo: string = '';
   
-  // Formulario
+  // Formulario del filtro
   dataRutasTemp: any[] = [];
   listaRutas: any[] = [];
   listaAnios: any[] = [];
@@ -37,12 +36,18 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
   iconBus: string = 'assets/Images/busescolar.png';
   iconStudent: string = 'assets/Images/studentmarker.png';
 
-  // Mapas de las Rutas
-  listaMapaReporte: { codruta: number, flujo: string, ruta: any[], marcador: google.maps.Marker, mapa: google.maps.Map }[] = [];
-  mapaTemporal: google.maps.Map;
-  divMapa: ElementRef;
+  // En esta lista tendremos la referencia de los mapas activos que estan en seguimiento
+  listaMapaReporte: { 
+    codruta: number, 
+    flujo: string, 
+    ruta: any[], 
+    marcador: google.maps.Marker, 
+    mapa: google.maps.Map 
+    }[] = [];
 
-  listaInfoWindows: google.maps.InfoWindow[] = [];
+  mapaTemporal: google.maps.Map;
+
+  // se utiliza para pintar la ruta en el mapa
   rutaPolyline: google.maps.Polyline;
 
   constructor(
@@ -90,10 +95,11 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
 
     this._mapaService.cargarVehiculoRuta(Number(this.codAnioActivo), dia, this.filtroFlujo).subscribe(( ruta: any ) =>{
       if( ruta.ok == true ) {
+        this.listaRutas = [];  // limpiamos la rutas
         for ( const index in ruta.resp ) {
           this._mapaService.cargarEstudianteTransporte(this.codAnioActivo, mes, ruta.resp[index].codvehiculoruta, fecha, this.filtroFlujo)
             .then((estudiante:any) => {
-
+              
               // Cantidad de estudiantes
               ruta.resp[index].countEstu = estudiante.resp.length;
               // array datos estudiantes 
@@ -129,7 +135,7 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
   cargarRutasSelect(codanio: string){
     if( codanio !== '0' ) {
       this._mapaService.cargarRutasxAnio( codanio ).subscribe( ( data: any ) => {
-        if ( data.ok = true ) {
+        if ( data.ok == true ) {
 
           this.dataRutasTemp = [];
 
@@ -170,6 +176,7 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
     if ( estado == true ) {
       this._mapaService.cargarRutaTransporte( codruta, this.filtroFlujo ).subscribe((data:any) => {
         if( data.ok == true ) {
+          this._websocketService.emitirSocket('emit-usuario-activo-ruta', codruta);
           ruta.alerts = [];
           this.crearMapaRuta( codruta );
         }else{
@@ -187,15 +194,15 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
     }else{
       const mapa: HTMLElement = document.getElementById('mapa-' + codruta);
       mapa.innerHTML = '';
+      this._websocketService.emitirSocket('emit-usuario-desactivo-ruta', codruta);
       this.listaMapaReporte = this.listaMapaReporte.filter( mapa => mapa.codruta !== codruta );
     }
 
     console.log(this.listaMapaReporte);
   }
 
-  onClosed(cerrarAlert: any) {
-    let alert =  this.listaRutas.find(ruta => ruta.alerts == cerrarAlert);
-    alert = [];
+  cerrarAlert(ruta: any) {
+    ruta.alerts = [];
   }
   
   crearMapaRuta( codruta: number ){
@@ -254,6 +261,8 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
     // escuchar-ruta-reporte
     this._websocketService.escucharSocket('listen-marcador-ruta')
       .subscribe( ( puntoUbicacion: Ubicacion ) => {
+
+        console.log( puntoUbicacion );
 
         let mapa = this.buscarMapa( puntoUbicacion.codruta, puntoUbicacion.flujo );
 

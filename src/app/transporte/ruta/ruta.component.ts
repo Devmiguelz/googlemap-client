@@ -55,11 +55,7 @@ export class RutaComponent implements OnInit, AfterViewInit {
    }
 
   ngAfterViewInit() {
-    /* this._mapaService.cargarMarcadores().subscribe( (marcadores: Ubicacion[]) => {
-      this.ubicaciones = marcadores;
-      this.cargarMapa();
-    });
-    this.escucharEventosSocket(); */
+    
   }
 
   cargarAnioActivo() {
@@ -78,12 +74,6 @@ export class RutaComponent implements OnInit, AfterViewInit {
   }
 
   escucharEventosSocket() {
-
-    // escuchar-marcador-nuevo
-    this._websocketService.escucharSocket('escuchar-marcador-nuevo')
-      .subscribe( (nuevoMarcador: Ubicacion) => {
-        /* this.agregarMarcador( nuevoMarcador ); */
-    });
 
     // escuchar-marcardor-mover
     this._websocketService.escucharSocket('escuchar-marcador-mover')
@@ -104,12 +94,6 @@ export class RutaComponent implements OnInit, AfterViewInit {
         }
     });
 
-    // escuchar-marcardor-borrar
-    this._websocketService.escucharSocket('escuchar-marcador-borrar')
-      .subscribe( (id: string) => {
-        this.listaMarcadores.find(marcador => marcador.get('id') === id).setMap(null);
-    });
-
   }
 
   filtrarFlujoRuta() {
@@ -122,7 +106,6 @@ export class RutaComponent implements OnInit, AfterViewInit {
     this._mapaService.cargarVehiculoRuta( this.codAnioActivo, dia, this.filtroFlujo ).subscribe(( ruta: any ) =>{
       if( ruta.ok == true ) {
         this.listaRutas = ruta.resp;
-        // this.cargarMapas();
       }
     });
     
@@ -135,7 +118,6 @@ export class RutaComponent implements OnInit, AfterViewInit {
     const buttom: HTMLElement = document.getElementById('btn-estado-' + codruta);
 
     if( this.listaMapaReporte.filter(mapa => mapa.codruta === codruta).length == 0 ) {
-
       this._mapaService.activarRutaTransporte( codruta, this.filtroFlujo ).subscribe((data:any) => {
         if( data.ok == true ) {
           buttom.classList.remove('btn-success');
@@ -147,11 +129,9 @@ export class RutaComponent implements OnInit, AfterViewInit {
     }else{
       this._mapaService.cerrarRutaTransporte(codruta, this.filtroFlujo).subscribe((data:any) => {
         if( data.ok == true ) {
-
           buttom.classList.remove('btn-danger');
           buttom.classList.add('btn-success');
           buttom.textContent = 'Activar';
-
           this.cerrarMapa( codruta );
         }
       });

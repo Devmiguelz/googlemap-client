@@ -58,7 +58,7 @@
         <div class="row card-body p-1" >
           <div class="col-md-3">
             <div *ngFor="let alert of ruta.alerts">
-              <alert [type]="alert.type" [dismissible]="true" (onClosed)="onClosed(alert)">{{ alert.msg }}</alert>
+              <alert [type]="alert.type" [dismissible]="true" (onClosed)="cerrarAlert(ruta)">{{ alert.msg }}</alert>
             </div>
             <div class="text-center">
               <label class="m-0 size-font"><strong>Ver Seguimiento</strong></label><br>
@@ -146,7 +146,7 @@
                       <img *ngIf="estudiante.asistio === '1'" class="img-estado" src="assets/Images/enruta.png" alt="img-default">                          
                       <img *ngIf="estudiante.asistio !== null && estudiante.asistio !== '1'" class="img-estado" src="assets/Images/noasistio.png" alt="img-default">                          
                     </td>
-                    <td><p *ngIf="estudiante.createdday != null" ></p> {{ estudiante.createdday }}</td>
+                    <td><p *ngIf="estudiante.createdday != null" >{{ estudiante.createdday }}</p></td>
                   </tr>
                 </tbody>
               </table>

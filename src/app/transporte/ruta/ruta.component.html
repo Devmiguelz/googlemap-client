@@ -41,7 +41,7 @@
  
 <div *ngIf="listaRutas.length > 0" class="card mb-3 col-md-12">
   <div class="row card-body p-1" >
-    <div *ngFor="let ruta of listaRutas" class="col-md-4">
+    <div *ngFor="let ruta of listaRutas" class="col-md-6">
         <label>{{ ruta.nroruta }}</label>
         <button id="btn-estado-{{ ruta.codruta }}" class="btn btn-success p-0 float-right" 
           (click)="cambiarEstado(ruta)" >Activar

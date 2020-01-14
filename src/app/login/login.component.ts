@@ -33,7 +33,7 @@ export class LoginComponent implements OnInit {
 
   validarLogin() {
     const usuario: Usuario = this.formLogin.value;
-    this._websocketService.loginSocketUsuario( usuario.nombre, 0)
+    this._websocketService.loginSocketUsuario( usuario.nombre)
       .then(() => {
         this.routes.navigateByUrl('/transporte/ruta');
       });
