@@ -172,11 +172,14 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
     ruta.seguimiento = estado;
     // obtenemos el codruta
     const codruta = ruta.codruta;
+    const flujo = ruta.flujo;
+
+    console.log('ruta' + codruta + '-flujo' + flujo);
 
     if ( estado == true ) {
       this._mapaService.cargarRutaTransporte( codruta, this.filtroFlujo ).subscribe((data:any) => {
         if( data.ok == true ) {
-          this._websocketService.emitirSocket('emit-usuario-activo-ruta', codruta);
+          this._websocketService.emitirSocket('emit-usuario-activo-ruta', { codruta, flujo } );
           ruta.alerts = [];
           this.crearMapaRuta( codruta );
         }else{
@@ -194,7 +197,7 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
     }else{
       const mapa: HTMLElement = document.getElementById('mapa-' + codruta);
       mapa.innerHTML = '';
-      this._websocketService.emitirSocket('emit-usuario-desactivo-ruta', codruta);
+      this._websocketService.emitirSocket('emit-usuario-desactivo-ruta',  { codruta, flujo } );
       this.listaMapaReporte = this.listaMapaReporte.filter( mapa => mapa.codruta !== codruta );
     }
 
