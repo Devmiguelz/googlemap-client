@@ -234,4 +234,8 @@ export class RutaComponent implements OnInit, AfterViewInit {
       this.cerrarMapa( this.listaMapaReporte[index].codruta );
     }
   }
+
+  logout() {
+    this._websocketService.logoutSocketUsuario();
+  }
 }

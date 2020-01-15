@@ -1,4 +1,5 @@
-export class PuntoUbicacion {
+
+export class LatLng {
 
     public lat: number;
     public lng: number;

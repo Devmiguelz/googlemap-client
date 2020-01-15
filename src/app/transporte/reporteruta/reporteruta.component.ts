@@ -7,6 +7,7 @@ import { Select2OptionData } from 'ng-select2';
 import { Options } from 'select2';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
+import { LatLng } from '../../model/punto';
 declare var $: any;
 
 @Component({
@@ -40,7 +41,7 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
   listaMapaReporte: { 
     codruta: number, 
     flujo: string, 
-    ruta: any[], 
+    ruta: LatLng[], 
     marcador: google.maps.Marker, 
     mapa: google.maps.Map 
     }[] = [];
@@ -174,8 +175,6 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
     const codruta = ruta.codruta;
     const flujo = ruta.flujo;
 
-    console.log('ruta' + codruta + '-flujo' + flujo);
-
     if ( estado == true ) {
       this._mapaService.cargarRutaTransporte( codruta, this.filtroFlujo ).subscribe((data:any) => {
         if( data.ok == true ) {
@@ -213,18 +212,14 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
     // De esta forma generamos una ubicacion para el mapa
     const ubicacionMapa = new google.maps.LatLng(10.9740231, -74.8044078);
 
-    /*
-      Documentacion: https://developers.google.com/maps/documentation/javascript/adding-a-google-map
-    */
-
-   // configuramos posicion, zoom, controles, ....
-   const opciones: google.maps.MapOptions = {
-     center: ubicacionMapa,
-     zoom: 15,
-     disableDefaultUI: true,
-     mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    
+    // configuramos posicion, zoom, controles, ....
+    const opciones: google.maps.MapOptions = {
+      center: ubicacionMapa,
+      zoom: 15,
+      disableDefaultUI: true,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+      };
+      
     // obtenemos el id del div de esta Ruta
     const mapa: HTMLElement = document.getElementById('mapa-' + codruta);
 
@@ -251,44 +246,39 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
     return null;
   }
 
-  agregarMarcadorMapa( codruta: number, flujo: string, marcador: google.maps.Marker ) {
-    for (const i in this.listaMapaReporte) {
-      if( this.listaMapaReporte[i].codruta === codruta && this.listaMapaReporte[i].flujo === flujo ) {
-        this.listaMapaReporte[i].marcador = marcador;
-      }
-    }
-    return null;
-  }
-
   escucharEventosRuta() {
-    // escuchar-ruta-reporte
+    // aqui escuhamos para cuando nos emitan ubicaciones nuevas
     this._websocketService.escucharSocket('listen-marcador-ruta')
-      .subscribe( ( puntoUbicacion: Ubicacion ) => {
+      .subscribe( ( puntos: Ubicacion ) => {
 
-        console.log( puntoUbicacion );
+        console.log( puntos );
 
-        let mapa = this.buscarMapa( puntoUbicacion.codruta, puntoUbicacion.flujo );
+        let mapa = this.buscarMapa( puntos.codruta, puntos.flujo );
 
         if( mapa != null ) {
 
+          const latLng = new google.maps.LatLng( puntos.latitud, puntos.longitud );
+
           if(mapa.ruta.length == 0){
-            this.agregarMarcador( mapa.mapa, puntoUbicacion, 'Punto de Salida' );
+            this.agregarMarcadorSalida( mapa.mapa, latLng, 'Punto de Salida' );
           }
           // Agregamos los puntos nuevos
-          mapa.ruta.push( {lat:puntoUbicacion.latitud,lng: puntoUbicacion.longitud} )
+          mapa.ruta.push( {lat: puntos.latitud,lng: puntos.longitud} )
+
+          // ponemos el zoom de ruta en seguimiento
+          mapa.mapa.setZoom(15);
 
           if( mapa.marcador != null ) {
-            mapa.marcador.setMap( null );
+            mapa.marcador.setPosition(latLng); 
+          }else{
+            mapa.marcador = this.crearMarcador(mapa.mapa, latLng, 'Ubicación actual de vehiculo.', this.iconBus);
+            mapa.marcador.setPosition(latLng);
           }
-
-          this.agregarMarcadorBus( mapa.mapa, puntoUbicacion.latitud, 
-                                   puntoUbicacion.longitud, puntoUbicacion.codruta, 
-                                   'Ubicación actual de vehiculo.' );
 
           // mandamos a pintar la linea
           this.pintarRuta( mapa.mapa, mapa.ruta )
-
-          this.centrarMapa( mapa.mapa, puntoUbicacion.latitud, puntoUbicacion.longitud );
+          // centramos la vista del mapa en la ultima ubicacion recibida
+          mapa.mapa.setCenter(latLng);
 
         }
     });
@@ -302,21 +292,33 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
 
         if( data.resp.length > 0 ) { 
 
-          const puntosUbicacion = data.resp[0].puntoUbicacion;
+          const puntos = data.resp[0].puntoUbicacion;
+          const size = puntos.length;
 
-          if( puntosUbicacion.length > 0 ) {
+          if( size > 0 ) {
 
             let mapa = this.buscarMapa( data.resp[0].codruta, data.resp[0].flujo );
 
             if( mapa != null ) {
 
-              this.agregarMarcador( mapa.mapa, puntosUbicacion[0], 'Punto de Salida' );
+              const latLngInicio = new google.maps.LatLng( puntos[0].latitud, puntos[0].longitud );
+              const latLngFin = new google.maps.LatLng( puntos[ size - 1 ].latitud, puntos[ size - 1 ].longitud );
 
-              this.centrarMapa( mapa.mapa , puntosUbicacion[ puntosUbicacion.length - 1 ].latitud, puntosUbicacion[ puntosUbicacion.length - 1 ].longitud );
+              this.agregarMarcadorSalida( mapa.mapa, latLngInicio, 'Punto de Salida' );
 
-              for (const i in puntosUbicacion) {
+              if( mapa.marcador != null ) {
+                mapa.marcador.setPosition(latLngFin); 
+              }else{
+                mapa.marcador = this.crearMarcador(mapa.mapa, latLngFin, 'Ubicación actual de vehiculo.', this.iconBus);
+                mapa.marcador.setPosition(latLngFin);
+              }
+
+              // centramos la vista del mapa en la ultima ubicacion recibida
+              mapa.mapa.setCenter(latLngFin);
+
+              for (const i in puntos) {
                 // Agregamos los puntos guardados en la base de datos
-                mapa.ruta.push( {lat:puntosUbicacion[i].latitud,lng: puntosUbicacion[i].longitud} )
+                mapa.ruta.push( {lat: puntos[i].latitud,lng: puntos[i].longitud} )
               }
               // mandamos a pintar la linea
               this.pintarRuta( mapa.mapa, mapa.ruta )
@@ -332,12 +334,7 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
     });
   }
 
-  centrarMapa(mapa: google.maps.Map , latitud: number, longitud: number) {
-    const latLng = new google.maps.LatLng( latitud, longitud );
-    mapa.setCenter( latLng );
-  }
-
-  pintarRuta( mapa: google.maps.Map, ruta: any[] ) {
+  pintarRuta( mapa: google.maps.Map, ruta: LatLng[] ) {
 
     this.rutaPolyline = new google.maps.Polyline({
       path: ruta,
@@ -361,38 +358,27 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
 
   }
 
-  agregarMarcadorBus( mapa: google.maps.Map, 
-                      latitud: number, longitud: number, 
-                      codruta: number, titulo: string ) {
-
-    // Primero ubicamos la posicion del marcador
-    const ubicacionMarcador = new google.maps.LatLng( latitud, longitud );
+  crearMarcador( mapa: google.maps.Map, ubicacion: google.maps.LatLng, titulo: string, icono: string ) {
 
     // creamos el marcador
     const nuevoMarcador = new google.maps.Marker({
       map: mapa,                             // Aqui le pasamos la referecia del mapa que creamos
-      position: ubicacionMarcador,           // Asignamos la ubicacion del marcardor
+      position: ubicacion,           // Asignamos la ubicacion del marcardor
       draggable: false,                      // Permite que se pueda mover
       title: titulo,
-      icon: this.iconBus
+      icon: icono
     });
 
-    this.agregarMarcadorMapa( codruta, this.filtroFlujo, nuevoMarcador );
+    return nuevoMarcador;
     
   }
 
-  agregarMarcador(mapa: google.maps.Map, ubicacion: Ubicacion, titulo: string) {
-
-    // Primero ubicamos la posicion del marcador
-    const ubicacionMarcador = new google.maps.LatLng( ubicacion.latitud, ubicacion.longitud );
-
-    /* Documentacion: https://developers.google.com/maps/documentation/javascript/marker-clustering */
+  agregarMarcadorSalida(mapa: google.maps.Map, ubicacion: google.maps.LatLng, titulo: string) {
 
     // creamos el marcador
     const nuevoMarcador = new google.maps.Marker({
       map: mapa,                             // Aqui le pasamos la referecia del mapa que creamos
-      animation: google.maps.Animation.DROP, // Puntico
-      position: ubicacionMarcador,           // Asignamos la ubicacion del marcardor
+      position: ubicacion,                   // Asignamos la ubicacion del marcardor
       draggable: false,                      // Permite que se pueda mover
       title: titulo
     });
@@ -411,4 +397,7 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
 
   }
 
+  logout() {
+    this._websocketService.logoutSocketUsuario();
+  }
 }
