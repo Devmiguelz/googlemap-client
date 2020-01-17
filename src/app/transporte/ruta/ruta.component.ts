@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { Ubicacion } from '../../model/ubicacion';
-import { MapaService } from '../../services/mapa.service';
-import { WebsocketService } from '../../services/websocket.service';
+import { MapaService } from '../../services/mapa/mapa.service';
+import { WebsocketService } from '../../services/socket/websocket.service';
 import { Select2OptionData } from 'ng-select2';
 import { Options } from 'select2';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
@@ -215,11 +215,12 @@ export class RutaComponent implements OnInit, AfterViewInit {
     google.maps.event.addDomListener( nuevoMarcador, 'drag', ( data: any ) => {
 
       const marcadorTemporal: Ubicacion = {
-        latitud: data.latLng.lat(),
-        longitud: data.latLng.lng(),
-        flujo: this.filtroFlujo,
+        colegio: this._mapaService.colegio,
         nombre: nombre,
-        codruta: Number(nuevoMarcador.get('id'))
+        codruta: Number(nuevoMarcador.get('id')),
+        flujo: this.filtroFlujo,
+        latitud: data.latLng.lat(),
+        longitud: data.latLng.lng()
       };
       
       // Emitir evento socket borrar un marcador

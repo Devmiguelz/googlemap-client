@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
-import { Usuario } from '../model/usuario';
+import { Usuario } from '../../model/usuario';
 import { Router } from '@angular/router';
 
 @Injectable({

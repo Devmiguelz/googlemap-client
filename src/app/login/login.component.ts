@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
-import { WebsocketService } from '../services/websocket.service';
+import { WebsocketService } from '../services/socket/websocket.service';
 import { Router } from '@angular/router';
 import { Usuario } from '../model/usuario';
 

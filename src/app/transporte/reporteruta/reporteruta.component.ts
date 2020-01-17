@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Ubicacion } from '../../model/ubicacion';
-import { MapaService } from '../../services/mapa.service';
-import { WebsocketService } from '../../services/websocket.service';
+import { MapaService } from '../../services/mapa/mapa.service';
+import { WebsocketService } from '../../services/socket/websocket.service';
 
 import { Select2OptionData } from 'ng-select2';
 import { Options } from 'select2';
@@ -347,16 +347,6 @@ export class ReporterutaComponent implements OnInit, AfterViewInit {
     this.rutaPolyline.setMap( mapa );
   }
 
-  limpiarRutaMapa() {
-
-    this._mapaService.limpiarRutas().subscribe( ( resp: any ) => {
-      if( resp.ok == true){
-        console.log('Rutas Elminadas');
-        this.rutaPolyline.setMap( null );
-      }
-    });
-
-  }
 
   crearMarcador( mapa: google.maps.Map, ubicacion: google.maps.LatLng, titulo: string, icono: string ) {
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
-import { WebsocketService } from '../services/websocket.service';
+import { WebsocketService } from '../services/socket/websocket.service';
 
 @Injectable({
   providedIn: 'root'
